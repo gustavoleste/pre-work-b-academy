@@ -1,15 +1,15 @@
 const input = document.querySelector('[data-js="input"]')
 
-// criar array de palavras
-// colocar em letras maiusculas
-// transformar em string
-// alterar input
-
-input.addEventListener('input', () => {
-  const valuesList = input.value.split(' ')
-  const valuesListUp = valuesList.map( el => {
-    const [first, ...rest] = el
-    return ['d','de','da','do','dos', ' ', '', 'D'].includes(el) ? el.toLowerCase() : first.toUpperCase() + rest.join('').toLowerCase()
-  })
-  input.value = valuesListUp.join(' ')
+input.addEventListener('input', e => {
+  const strToArray = e.target.value.split(' ')
+  console.log('step-01:', strToArray)
+  e.target.value = strToArray.map(word => {
+    return exceptions(word.toLowerCase())
+    ? word.toLowerCase()
+    : capitalize(word)
+  }).join(' ')
 })
+
+const capitalize = word => `${word.charAt(0).toUpperCase()}${word.substr(1).toLowerCase()}`
+
+const exceptions = word => ['da', 'das', 'de', 'do', 'dos'].includes(word.toLowerCase())
