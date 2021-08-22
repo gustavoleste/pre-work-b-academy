@@ -1,7 +1,11 @@
 import './style.css'
+import { get, post } from '../http'
+
 const url = 'http://localhost:3333/cars'
 const form = document.querySelector('[data-js="cars-form"]')
 const table = document.querySelector('[data-js="table"]')
+const alert = document.querySelector('[data-js="alert"]')
+const contatiner = document.querySelector('[data-js="container"]')
 const getFormElement = event => elementName => {
   return event.target.elements[elementName]
 }
@@ -35,7 +39,7 @@ function createColor(value){
   return td
 }
 
-form.addEventListener('submit', e => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault()
   const getElement = getFormElement(e)
 
@@ -47,13 +51,29 @@ form.addEventListener('submit', e => {
     color: getElement('color').value
   }
 
+  const result = await post(url,data)
+
+  if(result.error){
+    console.log('Erro na hora de cadastrar: ', result.message)
+    alert.style.color = 'red'
+    alert.textContent = result.message
+    alert.style.marginBottom = '10px'
+    contatiner.insertAdjacentElement('beforebegin', alert)
+    return
+  }
+
+  const noContent = document.querySelector('[data-js="no-content"]')
+  if(noContent){
+    table.removeChild(noContent)
+  }
+
+  alert.textContent = ''
   createTableRow(data)
   e.target.reset()
   image.focus()
 })
 
 function createTableRow (data) {
-
   const elements = [
     { type: 'image', value: {src: data.image, alt: data.brandModel} },
     { type: 'text', value: data.brandModel },
@@ -77,14 +97,13 @@ function createNoCarRow(){
   const ths = document.querySelectorAll('table th')
   td.setAttribute('colspan', ths.length)
   td.textContent = 'Nenhum carro encontrado'
+  tr.dataset.js = 'no-content'
   tr.appendChild(td)
   table.appendChild(tr)
 }
 
 async function main () {
-  const result = await fetch(url)
-    .then(r => r.json())
-    .catch(e => ({error: true, message: e.message}))
+  const result = await get(url)
 
   if(result.error){
     console.log('Erro ao buscar carros', result.message)
@@ -95,7 +114,7 @@ async function main () {
     createNoCarRow()
     return
   }
-  result.forEach(createTableRow())
+  result.forEach(createTableRow)
 }
 
 main()
