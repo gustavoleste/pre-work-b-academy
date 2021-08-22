@@ -45,5 +45,4 @@ const createDiv = value => {
 }
 
 form.appendChild(select)
-document.body.appendChild(colorsContainer)
-console.log(select)
+form.insertAdjacentElement('afterend', colorsContainer)
