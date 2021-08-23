@@ -1,5 +1,5 @@
 import './style.css'
-import { get, post } from '../http'
+import { get, post, del } from '../http'
 
 const url = 'http://localhost:3333/cars'
 const form = document.querySelector('[data-js="cars-form"]')
@@ -83,12 +83,39 @@ function createTableRow (data) {
   ]
 
   const tr = document.createElement('tr')
+  tr.dataset.plate = data.plate
   elements.forEach( element => {
     const td = elementTypes[element.type](element.value)
     tr.appendChild(td)
   })
 
+  const button = document.createElement('button')
+  button.textContent = 'EXCLUIR'
+  button.dataset.plate = data.plate
+  button.addEventListener('click', handleDelete)
+  tr.appendChild(button)
+
   table.appendChild(tr)
+}
+
+async function handleDelete(e){
+  const button = e.target
+  const plate = e.target.dataset.plate
+  const result = await del(url, { plate })
+
+  if(result.error){
+    console.log('Erro ao deletar', result.message)
+    return
+  }
+
+  const tr = document.querySelector(`[data-plate="${plate}"]`)
+  table.removeChild(tr)
+  button.removeEventListener('click', handleDelete)
+
+  const allTrs = table.querySelector('tr')
+  if(!allTrs){
+    createNoCarRow()
+  }
 }
 
 function createNoCarRow(){
